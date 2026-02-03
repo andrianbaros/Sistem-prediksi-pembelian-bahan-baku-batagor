@@ -18,6 +18,7 @@ if st.session_state.logged_in:
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.markdown('<div class="title">Owner Login</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Sistem Prediksi Pembelian Bahan Baku</div>', unsafe_allow_html=True)
+st.write(st.secrets)
 
 user = st.text_input("Username")
 pwd = st.text_input("Password", type="password")

@@ -2,8 +2,12 @@ import streamlit as st
 
 class AuthManager:
     def __init__(self):
-        self.username = st.secrets["auth"]["username"]
-        self.password = st.secrets["auth"]["password"]
+        try:
+            self.username = st.secrets["auth"]["username"]
+            self.password = st.secrets["auth"]["password"]
+        except KeyError:
+            st.error("Secrets auth belum diset! Periksa secrets.toml")
+            st.stop()
 
     def validate(self, user, pwd):
         return user == self.username and pwd == self.password
