@@ -1,5 +1,10 @@
 import streamlit as st
 from auth import AuthManager
+from ui import UI
+
+UI.theme_switcher()
+UI.load_style()
+
 
 st.set_page_config(page_title="Beranda", layout="wide")
 

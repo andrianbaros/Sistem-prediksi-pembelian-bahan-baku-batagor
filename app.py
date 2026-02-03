@@ -1,6 +1,6 @@
 import streamlit as st
 from auth import AuthManager
-from ui import CorporateUI
+from ui import UI
 
 st.set_page_config(page_title="Corporate Login", layout="centered")
 
@@ -9,7 +9,7 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 auth = AuthManager()
-CorporateUI.load_style()
+UI.load_style()
 
 if st.session_state.logged_in:
     st.switch_page("pages/beranda.py")
@@ -18,7 +18,6 @@ if st.session_state.logged_in:
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.markdown('<div class="title">Owner Login</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Sistem Prediksi Pembelian Bahan Baku</div>', unsafe_allow_html=True)
-st.write(st.secrets)
 
 user = st.text_input("Username")
 pwd = st.text_input("Password", type="password")
