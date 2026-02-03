@@ -63,6 +63,5 @@ elif st.session_state.page == "forgot":
 
     if st.button("Kembali ke Login"):
         st.session_state.page = "login"
-        st.experimental_rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
