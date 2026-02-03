@@ -17,7 +17,7 @@ auth = AuthManager()
 
 # HEADER
 st.title("Sistem Prediksi Pembelian Bahan Baku Batagor")
-st.caption("Corporate Internal System")
+st.caption("Sistem Prediksi Pembelian Bahan Baku Batagor")
 
 st.markdown("---")
 
