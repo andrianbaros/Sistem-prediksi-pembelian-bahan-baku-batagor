@@ -12,7 +12,6 @@ if "page" not in st.session_state:
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-UI.theme_toggle()
 UI.load_style()
 
 # jika sudah login
