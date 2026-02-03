@@ -1,6 +1,6 @@
 import streamlit as st
 
-class CorporateUI:
+class UI:
 
     @staticmethod
     def theme_toggle():
