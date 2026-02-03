@@ -36,15 +36,9 @@ if st.session_state.page == "login":
         else:
             st.error("Username atau password salah")
 
-    st.markdown(
-        "<p style='text-align:center; font-size:12px; cursor:pointer;'>"
-        "Lupa password?</p>",
-        unsafe_allow_html=True
-    )
 
     if st.button("Lupa Password"):
         st.session_state.page = "forgot"
-        st.experimental_rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
 
