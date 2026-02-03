@@ -57,7 +57,6 @@ elif st.session_state.page == "forgot":
         if auth.reset_password(code, new_pwd):
             st.success("Password berhasil direset (sementara)")
             st.session_state.page = "login"
-            st.experimental_rerun()
         else:
             st.error("Kode owner salah")
 
