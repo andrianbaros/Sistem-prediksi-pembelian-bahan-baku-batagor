@@ -43,3 +43,4 @@ st.markdown("---")
 if st.button("Logout"):
     auth.logout()
     st.switch_page("app.py")
+

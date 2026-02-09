@@ -1,6 +1,6 @@
-import bcrypt
 import streamlit as st
 from supabase import create_client
+import bcrypt
 
 class AuthManager:
     def __init__(self):
@@ -39,3 +39,7 @@ class AuthManager:
         )
 
         return bool(res.data)
+
+    def logout(self):
+        st.session_state.logged_in = False
+        st.session_state.page = "login"
