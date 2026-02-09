@@ -39,7 +39,7 @@ if st.session_state.page == "login":
 
     if st.button("Lupa Password"):
         st.session_state.page = "forgot"
-        st.experimental_rerun()
+        st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -59,12 +59,12 @@ elif st.session_state.page == "forgot":
         if success:
             st.success("Password berhasil direset (PERMANEN)")
             st.session_state.page = "login"
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("User tidak ditemukan")
 
     if st.button("Kembali ke Login"):
         st.session_state.page = "login"
-        st.experimental_rerun()
+        st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
