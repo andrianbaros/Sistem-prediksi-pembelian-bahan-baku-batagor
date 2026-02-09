@@ -1,33 +1,41 @@
+import bcrypt
 import streamlit as st
+from supabase import create_client
 
 class AuthManager:
     def __init__(self):
-        if "auth" not in st.secrets:
-            st.error("Secrets auth belum diset")
-            st.stop()
-
-        self.username = st.secrets["auth"]["username"]
-        self.password = st.secrets["auth"]["password"]
-        self.owner_code = st.secrets["auth"]["owner_code"]
-
-        # password runtime (kalau direset)
-        if "runtime_password" not in st.session_state:
-            st.session_state.runtime_password = self.password
-
-    def validate(self, user, pwd):
-        return (
-            user == self.username
-            and pwd == st.session_state.runtime_password
+        self.supabase = create_client(
+            st.secrets["SUPABASE_URL"],
+            st.secrets["SUPABASE_KEY"]
         )
 
-    def reset_password(self, code, new_password):
-        if code == self.owner_code:
-            st.session_state.runtime_password = new_password
-            return True
-        return False
+    def login(self, username, password):
+        res = (
+            self.supabase
+            .table("users")
+            .select("password_hash")
+            .eq("username", username)
+            .execute()
+        )
 
-    def login(self):
-        st.session_state.logged_in = True
+        if not res.data:
+            return False
 
-    def logout(self):
-        st.session_state.logged_in = False
+        hashed = res.data[0]["password_hash"].encode()
+        return bcrypt.checkpw(password.encode(), hashed)
+
+    def reset_password(self, username, new_password):
+        new_hash = bcrypt.hashpw(
+            new_password.encode(),
+            bcrypt.gensalt()
+        ).decode()
+
+        res = (
+            self.supabase
+            .table("users")
+            .update({"password_hash": new_hash})
+            .eq("username", username)
+            .execute()
+        )
+
+        return bool(res.data)
