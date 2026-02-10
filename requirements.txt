@@ -1,3 +1,8 @@
 streamlit
 supabase
 bcrypt
+pandas
+numpy
+matplotlib
+statsmodels
+openpyxl
