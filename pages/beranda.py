@@ -102,8 +102,8 @@ if uploaded_file:
         # ===============================
         model = SARIMAX(
             ts,
-            order=(2,0,1),
-            seasonal_order=(1,0,0,6),
+            order=(1,0,1),
+            seasonal_order=(1,0,0,4),
 
             enforce_stationarity=True,
             enforce_invertibility=True
