@@ -8,13 +8,8 @@ class UI:
         <style>
 
         /* ===============================
-           PERBAIKI CONTAINER STREAMLIT
+           FIX CONTAINER
         =============================== */
-
-        div.block-container > div:first-child:empty {
-            display: none;
-        }
-
         .block-container {
             padding-top: 2rem !important;
         }
@@ -24,77 +19,59 @@ class UI:
         =============================== */
         :root {
             --bg: #f4f6f8;
-            --card: #ffffff;
-            --text: #111827;        /* HITAM */
+            --text: #111827;      /* HITAM */
             --subtext: #4b5563;
             --button: #2563eb;
             --button-hover: #1d4ed8;
-            --shadow: 0 10px 30px rgba(0,0,0,0.12);
         }
 
         /* ===============================
-           DARK MODE (AUTO DETECT)
+           DARK MODE
         =============================== */
         @media (prefers-color-scheme: dark) {
             :root {
                 --bg: #0e1117;
-                --card: #161b22;
-                --text: #e5e7eb;    /* PUTIH */
+                --text: #e5e7eb;  /* PUTIH */
                 --subtext: #9ca3af;
                 --button: #2563eb;
                 --button-hover: #1d4ed8;
-                --shadow: 0 10px 30px rgba(0,0,0,0.6);
             }
         }
 
         /* ===============================
            BACKGROUND
         =============================== */
-        .main {
+        .stApp {
             background-color: var(--bg);
-            transition: 0.3s ease;
         }
 
         /* ===============================
-           TEKS GLOBAL
+           FORCE TEXT COLOR (STREAMLIT OVERRIDE)
         =============================== */
-        body, p, span, label, h1, h2, h3, h4, h5, h6 {
+
+        .stApp, 
+        .stMarkdown, 
+        .stText, 
+        .stTextInput label, 
+        .stTextInput div, 
+        label, 
+        p, 
+        span, 
+        h1, h2, h3, h4, h5, h6 {
             color: var(--text) !important;
         }
 
-        /* ===============================
-           JUDUL LOGIN
-        =============================== */
-        .title {
-            font-size: 24px;
-            font-weight: 600;
-            text-align: center;
-            color: var(--text);
-            margin-bottom: 6px;
-        }
-
+        /* Subtitle */
         .subtitle {
-            text-align: center;
-            font-size: 13px;
-            color: var(--subtext);
-            margin-bottom: 28px;
+            color: var(--subtext) !important;
         }
 
         /* ===============================
-           INPUT
+           BUTTON CENTER
         =============================== */
-        input {
-            border-radius: 8px !important;
-        }
-
-        /* ===============================
-           TOMBOL CENTER
-        =============================== */
-
         div.stButton {
             display: flex !important;
             justify-content: center !important;
-            width: 100% !important;
         }
 
         div.stButton > button {
@@ -105,12 +82,10 @@ class UI:
             background-color: var(--button) !important;
             color: white !important;
             border: none !important;
-            transition: 0.2s ease-in-out;
         }
 
         div.stButton > button:hover {
             background-color: var(--button-hover) !important;
-            transform: translateY(-2px);
         }
 
         </style>
