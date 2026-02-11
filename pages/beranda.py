@@ -98,9 +98,8 @@ if uploaded_file:
 
         model = SARIMAX(
             ts,
-            order=(1,1,0),
-            seasonal_order=(0,0,0,0),
-
+            order=(1, 1, 1),
+            seasonal_order=(1,0,1,7)  # musiman mingguan
 
             enforce_stationarity=False,
             enforce_invertibility=False
