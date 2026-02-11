@@ -8,67 +8,51 @@ class UI:
         <style>
 
         /* ===============================
-           FIX CONTAINER
+           FORCE DARK MODE TOTAL
         =============================== */
+
+        .stApp {
+            background-color: #0e1117 !important;
+        }
+
         .block-container {
             padding-top: 2rem !important;
         }
 
         /* ===============================
-           LIGHT MODE (DEFAULT)
-        =============================== */
-        :root {
-            --bg: #f4f6f8;
-            --text: #111827;      /* HITAM */
-            --subtext: #4b5563;
-            --button: #2563eb;
-            --button-hover: #1d4ed8;
-        }
-
-        /* ===============================
-           DARK MODE
-        =============================== */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0e1117;
-                --text: #e5e7eb;  /* PUTIH */
-                --subtext: #9ca3af;
-                --button: #2563eb;
-                --button-hover: #1d4ed8;
-            }
-        }
-
-        /* ===============================
-           BACKGROUND
-        =============================== */
-        .stApp {
-            background-color: var(--bg);
-        }
-
-        /* ===============================
-           FORCE TEXT COLOR (STREAMLIT OVERRIDE)
+           TEXT COLOR (PUTIH SEMUA)
         =============================== */
 
-        .stApp, 
-        .stMarkdown, 
-        .stText, 
-        .stTextInput label, 
-        .stTextInput div, 
-        label, 
-        p, 
-        span, 
+        .stApp,
+        .stMarkdown,
+        .stText,
+        .stTextInput label,
+        label,
+        p,
+        span,
         h1, h2, h3, h4, h5, h6 {
-            color: var(--text) !important;
+            color: #e5e7eb !important;
         }
 
         /* Subtitle */
         .subtitle {
-            color: var(--subtext) !important;
+            color: #9ca3af !important;
+        }
+
+        /* ===============================
+           INPUT
+        =============================== */
+
+        input {
+            background-color: #1f2937 !important;
+            color: #e5e7eb !important;
+            border-radius: 8px !important;
         }
 
         /* ===============================
            BUTTON CENTER
         =============================== */
+
         div.stButton {
             display: flex !important;
             justify-content: center !important;
@@ -79,13 +63,13 @@ class UI:
             height: 44px !important;
             border-radius: 10px !important;
             font-weight: 600 !important;
-            background-color: var(--button) !important;
+            background-color: #2563eb !important;
             color: white !important;
             border: none !important;
         }
 
         div.stButton > button:hover {
-            background-color: var(--button-hover) !important;
+            background-color: #1d4ed8 !important;
         }
 
         </style>
