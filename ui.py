@@ -26,7 +26,7 @@ class UI:
             --bg: #f4f6f8;
             --card: #ffffff;
             --text: #111827;        /* HITAM */
-            --subtext: #4b5563;
+            --subtext: #111;
             --button: #2563eb;
             --button-hover: #1d4ed8;
             --shadow: 0 10px 30px rgba(0,0,0,0.12);
