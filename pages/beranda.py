@@ -2,6 +2,7 @@ import streamlit as st
 from auth import AuthManager
 from ui import UI
 
+st.set_page_config(page_title="Sistem Prediksi", layout="centered")
 UI.load_style()
 
 # ===============================
@@ -22,7 +23,7 @@ from statsmodels.tsa.statespace.sarimax import SARIMAX
 import numpy as np
 import io
 
-st.title("📦 Sistem Prediksi Pembelian Bahan Baku (Bulanan)")
+st.title("Sistem Prediksi Pembelian Bahan Baku Batagor Mang Omeng(Bulanan)")
 st.caption("Menampilkan prediksi penjualan dan rekomendasi pembelian bahan baku setiap bulan")
 
 # ===============================
@@ -151,11 +152,11 @@ if uploaded_file:
 
         df_forecast = pd.DataFrame({
             "Tanggal": future_dates,
-            "Prediksi_Penjualan_kg": forecast.round(2)
+            "Prediksi_Pembelian_kg": forecast.round(2)
         })
 
         df_forecast["Estimasi_Adonan_kg"] = (
-            df_forecast["Prediksi_Penjualan_kg"] / loss_factor
+            df_forecast["Prediksi_Pembelian_kg"] / loss_factor
         ).round(2)
 
         # ===============================
@@ -183,8 +184,8 @@ if uploaded_file:
         # ===============================
         col1, col2 = st.columns(2)
         col1.metric(
-            "Total Prediksi Penjualan (kg)",
-            f"{df_forecast['Prediksi_Penjualan_kg'].sum():.2f}"
+            "Total Prediksi Pembelian (kg)",
+            f"{df_forecast['Prediksi_Pembelian_kg'].sum():.2f}"
         )
         col2.metric(
             "Total Kebutuhan Adonan (kg)",
@@ -211,7 +212,7 @@ if uploaded_file:
             label="Interval Kepercayaan"
         )
 
-        ax.set_title("Grafik Prediksi Penjualan Bulanan")
+        ax.set_title("Grafik Prediksi Pembelian Bulanan")
         ax.set_xlabel("Bulan")
         ax.set_ylabel("Kilogram (kg)")
         ax.legend()
