@@ -18,6 +18,7 @@ auth = AuthManager()
 import pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.statespace.sarimax import SARIMAX
+import io
 
 
 st.title("📦 Sistem Prediksi Pembelian Bahan Baku (Bulanan)")
@@ -116,10 +117,12 @@ if uploaded_file:
 
         forecast = model_fit.forecast(steps=forecast_months)
 
+        last_date = ts.index[-1]
+
         future_dates = pd.date_range(
-            start=ts.index[-1] + pd.offsets.MonthEnd(1),
+            start=last_date + pd.DateOffset(months=1),
             periods=forecast_months,
-            freq="M"
+            freq="MS"
         )
 
         df_forecast = pd.DataFrame({
@@ -187,14 +190,30 @@ if uploaded_file:
         ax.grid(True)
         st.pyplot(fig)
 
+        # # =================================================
+        # # EXPORT
+        # # =================================================
+        # st.download_button(
+        #     "Export Rekomendasi Bulanan (CSV)",
+        #     data=df_forecast.to_csv(index=False),
+        #     file_name="rekomendasi_pembelian_bulanan.csv",
+        #     mime="text/csv"
+        # )
         # =================================================
-        # EXPORT
+        # EXPORT EXCEL
         # =================================================
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df_forecast.to_excel(writer, index=False, sheet_name='Rekomendasi')
+
+        output.seek(0)
+
         st.download_button(
-            "Export Rekomendasi Bulanan (CSV)",
-            data=df_forecast.to_csv(index=False),
-            file_name="rekomendasi_pembelian_bulanan.csv",
-            mime="text/csv"
+            label="Export Rekomendasi Bulanan (Excel)",
+            data=output,
+            file_name="rekomendasi_pembelian_bulanan.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
     except Exception as e:
