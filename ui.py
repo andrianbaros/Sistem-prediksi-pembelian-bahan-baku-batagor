@@ -20,13 +20,14 @@ class UI:
         }
 
         /* ===============================
-           TEXT COLOR (PUTIH SEMUA)
+           TEXT PUTIH SEMUA
         =============================== */
 
         .stApp,
         .stMarkdown,
         .stText,
         .stTextInput label,
+        .stTextInput div,
         label,
         p,
         span,
@@ -34,28 +35,33 @@ class UI:
             color: #e5e7eb !important;
         }
 
-        /* Subtitle */
+        /* Subtitle lebih soft */
         .subtitle {
             color: #9ca3af !important;
         }
 
         /* ===============================
-           INPUT
+           INPUT DARK
         =============================== */
+
+        div[data-baseweb="input"] {
+            background-color: #1f2937 !important;
+            border-radius: 8px !important;
+        }
 
         input {
             background-color: #1f2937 !important;
             color: #e5e7eb !important;
-            border-radius: 8px !important;
         }
 
         /* ===============================
-           BUTTON CENTER
+           BUTTON CENTER FIX
         =============================== */
 
         div.stButton {
             display: flex !important;
             justify-content: center !important;
+            width: 100% !important;
         }
 
         div.stButton > button {
@@ -66,10 +72,12 @@ class UI:
             background-color: #2563eb !important;
             color: white !important;
             border: none !important;
+            transition: 0.2s ease-in-out;
         }
 
         div.stButton > button:hover {
             background-color: #1d4ed8 !important;
+            transform: translateY(-2px);
         }
 
         </style>
