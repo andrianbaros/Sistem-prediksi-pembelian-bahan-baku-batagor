@@ -11,11 +11,10 @@ if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.warning("Anda harus login terlebih dahulu untuk mengakses halaman ini.")
     st.stop()
 
-
-autentikasi = AuthManager()
+auth = AuthManager()
 
 # ===============================
-# IMPORT LIBRARY
+# IMPORT
 # ===============================
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -24,14 +23,14 @@ import numpy as np
 import io
 
 st.title("📦 Sistem Prediksi Pembelian Bahan Baku (Bulanan)")
-st.caption("Prediksi penjualan dan rekomendasi pembelian bahan baku per bulan")
+st.caption("Menampilkan prediksi penjualan dan rekomendasi pembelian bahan baku setiap bulan")
 
 # ===============================
-# KOLOM WAJIB
+# KOLOM
 # ===============================
-KOLOM_WAJIB = {"Tanggal", "Penjualan_kg"}
+REQUIRED_COLUMNS = {"Tanggal", "Penjualan_kg"}
 
-KOLOM_BAHAN = [
+BAHAN_COLUMNS = [
     "Tepung_Tapioka_kg",
     "Terigu_kg",
     "Ikan_kg",
@@ -41,81 +40,81 @@ KOLOM_BAHAN = [
 ]
 
 # ===============================
-# VALIDASI DATA
+# VALIDASI
 # ===============================
-def validasi_data(data):
-    kolom_hilang = KOLOM_WAJIB - set(data.columns)
-    if kolom_hilang:
-        return False, f"Kolom wajib tidak ditemukan: {kolom_hilang}"
+def validate_dataframe(df):
+    missing = REQUIRED_COLUMNS - set(df.columns)
+    if missing:
+        return False, f"Kolom wajib tidak ditemukan: {missing}"
     return True, None
 
 # ===============================
-# UPLOAD FILE
+# UPLOAD
 # ===============================
-file_unggah = st.file_uploader(
+uploaded_file = st.file_uploader(
     "Unggah Data Penjualan Harian (.xlsx)",
     type=["xlsx"]
 )
 
-if file_unggah:
+if uploaded_file:
     try:
-        data = pd.read_excel(file_unggah)
+        df = pd.read_excel(uploaded_file)
 
-        valid, pesan = validasi_data(data)
+        valid, msg = validate_dataframe(df)
         if not valid:
-            st.error(pesan)
+            st.error(msg)
             st.stop()
 
-        data["Tanggal"] = pd.to_datetime(data["Tanggal"], errors="coerce")
-        data = data.dropna(subset=["Tanggal", "Penjualan_kg"])
-        data = data.sort_values("Tanggal")
+        df["Tanggal"] = pd.to_datetime(df["Tanggal"], errors="coerce")
+        df = df.dropna(subset=["Tanggal", "Penjualan_kg"])
+        df = df.sort_values("Tanggal")
 
-        bahan_tersedia = [k for k in KOLOM_BAHAN if k in data.columns]
+        bahan_tersedia = [c for c in BAHAN_COLUMNS if c in df.columns]
         if not bahan_tersedia:
-            st.error("Kolom bahan baku tidak ditemukan")
+            st.error("Kolom bahan baku tidak ditemukan dalam file.")
             st.stop()
 
         # ===============================
         # AGREGASI BULANAN
         # ===============================
-        data_bulanan = (
-            data.set_index("Tanggal")
-                .resample("MS")
-                .sum()
-                .reset_index()
+        df_monthly = (
+            df.set_index("Tanggal")
+              .resample("MS")
+              .sum()
+              .reset_index()
         )
 
-        st.subheader("📅 Data Historis Bulanan")
-        st.dataframe(data_bulanan)
+        st.subheader("📅 Data Historis Penjualan Bulanan")
+        st.dataframe(df_monthly)
 
         # ===============================
-        # HITUNG TOTAL ADONAN
+        # TOTAL ADONAN
         # ===============================
-        data_bulanan["Total_Adonan_kg"] = data_bulanan[bahan_tersedia].sum(axis=1)
+        df_monthly["Total_Adonan_kg"] = df_monthly[bahan_tersedia].sum(axis=1)
 
         # ===============================
-        # DERET WAKTU
+        # TIME SERIES
         # ===============================
-        deret_waktu = data_bulanan.set_index("Tanggal")["Penjualan_kg"]
+        ts = df_monthly.set_index("Tanggal")["Penjualan_kg"]
 
         # ===============================
-        # MODEL SARIMA
+        # MODEL
         # ===============================
         model = SARIMAX(
-            deret_waktu,
-            order=(2, 0, 1),
-            seasonal_order=(1, 0, 1, 7),
+            ts,
+            order=(2,0,1),
+            seasonal_order=(1,0,1,7),
             enforce_stationarity=True,
             enforce_invertibility=True
         )
 
-        hasil_model = model.fit(disp=False)
+        model_fit = model.fit(disp=False)
 
         # ===============================
         # INPUT PERIODE PREDIKSI
         # ===============================
-        periode_prediksi = st.number_input(
-            "Periode Prediksi (bulan)",
+        forecast_months = st.number_input(
+            "Masukkan periode prediksi (dalam bulan)",
             min_value=1,
             max_value=24,
             value=3
@@ -124,78 +123,72 @@ if file_unggah:
         # ===============================
         # PREDIKSI HISTORIS
         # ===============================
-        prediksi_historis = hasil_model.get_prediction(
-            start=0,
-            end=len(deret_waktu) - 1
-        )
-
-        nilai_model_historis = prediksi_historis.predicted_mean
+        pred = model_fit.get_prediction(start=0, end=len(ts)-1)
+        fitted_values = pred.predicted_mean
 
         # ===============================
         # PREDIKSI MASA DEPAN
         # ===============================
-        objek_forecast = hasil_model.get_forecast(steps=periode_prediksi)
-        nilai_forecast = objek_forecast.predicted_mean
-        interval_kepercayaan = objek_forecast.conf_int()
+        forecast_obj = model_fit.get_forecast(steps=forecast_months)
+        forecast = forecast_obj.predicted_mean
+        conf_int = forecast_obj.conf_int()
 
-        tanggal_masa_depan = pd.date_range(
-            start=deret_waktu.index[-1] + pd.DateOffset(months=1),
-            periods=periode_prediksi,
+        future_dates = pd.date_range(
+            start=ts.index[-1] + pd.DateOffset(months=1),
+            periods=forecast_months,
             freq="MS"
         )
 
-        seri_forecast = pd.Series(nilai_forecast.values, index=tanggal_masa_depan)
+        forecast_series = pd.Series(forecast.values, index=future_dates)
 
         # ===============================
         # KONVERSI KE ADONAN
         # ===============================
-        faktor_kehilangan = (
-            data_bulanan["Penjualan_kg"] /
-            data_bulanan["Total_Adonan_kg"]
+        loss_factor = (
+            df_monthly["Penjualan_kg"] /
+            df_monthly["Total_Adonan_kg"]
         ).mean()
 
-        data_forecast = pd.DataFrame({
-            "Tanggal": tanggal_masa_depan,
-            "Prediksi_Penjualan_kg": nilai_forecast.round(2)
+        df_forecast = pd.DataFrame({
+            "Tanggal": future_dates,
+            "Prediksi_Penjualan_kg": forecast.round(2)
         })
 
-        data_forecast["Estimasi_Adonan_kg"] = (
-            data_forecast["Prediksi_Penjualan_kg"] / faktor_kehilangan
+        df_forecast["Estimasi_Adonan_kg"] = (
+            df_forecast["Prediksi_Penjualan_kg"] / loss_factor
         ).round(2)
 
         # ===============================
         # RASIO BAHAN
         # ===============================
         rasio_bahan = (
-            data_bulanan[bahan_tersedia]
-            .div(data_bulanan["Total_Adonan_kg"], axis=0)
+            df_monthly[bahan_tersedia]
+            .div(df_monthly["Total_Adonan_kg"], axis=0)
             .mean()
         )
 
         for bahan in bahan_tersedia:
-            data_forecast[bahan] = (
-                data_forecast["Estimasi_Adonan_kg"] * rasio_bahan[bahan]
+            df_forecast[bahan] = (
+                df_forecast["Estimasi_Adonan_kg"] * rasio_bahan[bahan]
             ).round(2)
 
         # ===============================
-        # TAMPILKAN REKOMENDASI
+        # TAMPILKAN HASIL
         # ===============================
         st.subheader("📦 Rekomendasi Pembelian Bahan Baku Bulanan")
-        st.dataframe(data_forecast[["Tanggal"] + bahan_tersedia])
+        st.dataframe(df_forecast[["Tanggal"] + bahan_tersedia])
 
         # ===============================
-        # RINGKASAN METRIK
+        # RINGKASAN
         # ===============================
-        kolom1, kolom2 = st.columns(2)
-
-        kolom1.metric(
+        col1, col2 = st.columns(2)
+        col1.metric(
             "Total Prediksi Penjualan (kg)",
-            f"{data_forecast['Prediksi_Penjualan_kg'].sum():.2f}"
+            f"{df_forecast['Prediksi_Penjualan_kg'].sum():.2f}"
         )
-
-        kolom2.metric(
-            "Total Adonan Dibutuhkan (kg)",
-            f"{data_forecast['Estimasi_Adonan_kg'].sum():.2f}"
+        col2.metric(
+            "Total Kebutuhan Adonan (kg)",
+            f"{df_forecast['Estimasi_Adonan_kg'].sum():.2f}"
         )
 
         # ===============================
@@ -203,25 +196,22 @@ if file_unggah:
         # ===============================
         fig, ax = plt.subplots(figsize=(10, 4))
 
-        ax.plot(deret_waktu.index, deret_waktu.values,
-                label="Data Aktual", marker="o")
-
-        ax.plot(deret_waktu.index, nilai_model_historis,
-                linestyle="--", label="Hasil Model Historis")
-
-        ax.plot(tanggal_masa_depan, seri_forecast,
-                linestyle="--", marker="o", label="Prediksi Masa Depan")
+        ax.plot(ts.index, ts.values, label="Data Aktual", marker="o")
+        ax.plot(ts.index, fitted_values,
+                linestyle="--", label="Hasil Model (Historis)")
+        ax.plot(future_dates, forecast_series,
+                linestyle="--", marker="o", label="Prediksi")
 
         ax.fill_between(
-            tanggal_masa_depan,
-            interval_kepercayaan.iloc[:, 0],
-            interval_kepercayaan.iloc[:, 1],
+            future_dates,
+            conf_int.iloc[:, 0],
+            conf_int.iloc[:, 1],
             color='gray',
             alpha=0.3,
             label="Interval Kepercayaan"
         )
 
-        ax.set_title("Prediksi Penjualan Bulanan")
+        ax.set_title("Grafik Prediksi Penjualan Bulanan")
         ax.set_xlabel("Bulan")
         ax.set_ylabel("Kilogram (kg)")
         ax.legend()
@@ -230,22 +220,17 @@ if file_unggah:
         st.pyplot(fig)
 
         # ===============================
-        # EKSPOR EXCEL
+        # EXPORT
         # ===============================
-        buffer_output = io.BytesIO()
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df_forecast.to_excel(writer, index=False, sheet_name='Rekomendasi')
 
-        with pd.ExcelWriter(buffer_output, engine='openpyxl') as penulis:
-            data_forecast.to_excel(
-                penulis,
-                index=False,
-                sheet_name='Rekomendasi'
-            )
-
-        buffer_output.seek(0)
+        output.seek(0)
 
         st.download_button(
-            label="Unduh Rekomendasi Bulanan (Excel)",
-            data=buffer_output,
+            label="Unduh Rekomendasi dalam Format Excel",
+            data=output,
             file_name="rekomendasi_pembelian_bulanan.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
@@ -257,5 +242,5 @@ if file_unggah:
 # LOGOUT
 # ===============================
 if st.button("Keluar"):
-    autentikasi.logout()
+    auth.logout()
     st.switch_page("app.py")
