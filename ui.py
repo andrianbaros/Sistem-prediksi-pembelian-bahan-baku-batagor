@@ -8,11 +8,11 @@ class UI:
         <style>
 
         /* ===============================
-           FORCE DARK MODE TOTAL
+           PERBAIKI CONTAINER STREAMLIT
         =============================== */
 
-        .stApp {
-            background-color: #0e1117 !important;
+        div.block-container > div:first-child:empty {
+            display: none;
         }
 
         .block-container {
@@ -20,42 +20,75 @@ class UI:
         }
 
         /* ===============================
-           TEXT PUTIH SEMUA
+           LIGHT MODE (DEFAULT)
         =============================== */
-
-        .stApp,
-        .stMarkdown,
-        .stText,
-        .stTextInput label,
-        .stTextInput div,
-        label,
-        p,
-        span,
-        h1, h2, h3, h4, h5, h6 {
-            color: #e5e7eb !important;
-        }
-
-        /* Subtitle lebih soft */
-        .subtitle {
-            color: #9ca3af !important;
+        :root {
+            --bg: #f4f6f8;
+            --card: #ffffff;
+            --text: #111827;        /* HITAM */
+            --subtext: #4b5563;
+            --button: #2563eb;
+            --button-hover: #1d4ed8;
+            --shadow: 0 10px 30px rgba(0,0,0,0.12);
         }
 
         /* ===============================
-           INPUT DARK
+           DARK MODE (AUTO DETECT)
         =============================== */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0e1117;
+                --card: #161b22;
+                --text: #e5e7eb;    /* PUTIH */
+                --subtext: #9ca3af;
+                --button: #2563eb;
+                --button-hover: #1d4ed8;
+                --shadow: 0 10px 30px rgba(0,0,0,0.6);
+            }
+        }
 
-        div[data-baseweb="input"] {
-            background-color: #1f2937 !important;
+        /* ===============================
+           BACKGROUND
+        =============================== */
+        .main {
+            background-color: var(--bg);
+            transition: 0.3s ease;
+        }
+
+        /* ===============================
+           TEKS GLOBAL
+        =============================== */
+        body, p, span, label, h1, h2, h3, h4, h5, h6 {
+            color: var(--text) !important;
+        }
+
+        /* ===============================
+           JUDUL LOGIN
+        =============================== */
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 13px;
+            color: var(--subtext);
+            margin-bottom: 28px;
+        }
+
+        /* ===============================
+           INPUT
+        =============================== */
+        input {
             border-radius: 8px !important;
         }
 
-        input {
-            background-color: #1f2937 !important;
-            color: #e5e7eb !important;
-        }
-
         /* ===============================
-           BUTTON CENTER FIX
+           TOMBOL CENTER
         =============================== */
 
         div.stButton {
@@ -69,14 +102,14 @@ class UI:
             height: 44px !important;
             border-radius: 10px !important;
             font-weight: 600 !important;
-            background-color: #2563eb !important;
+            background-color: var(--button) !important;
             color: white !important;
             border: none !important;
             transition: 0.2s ease-in-out;
         }
 
         div.stButton > button:hover {
-            background-color: #1d4ed8 !important;
+            background-color: var(--button-hover) !important;
             transform: translateY(-2px);
         }
 
