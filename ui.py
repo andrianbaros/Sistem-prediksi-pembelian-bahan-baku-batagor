@@ -38,17 +38,7 @@ class UI:
             background-color: var(--bg);
         }
 
-        /* ===============================
-           CARD LOGIN (CENTER FIX)
-        =============================== */
-        .card {
-            background: var(--card);
-            padding: 42px 38px;
-            border-radius: 14px;
-            box-shadow: var(--shadow);
-            width: 400px;
-            margin: 4rem auto;
-        }
+
 
         /* ===============================
            JUDUL
