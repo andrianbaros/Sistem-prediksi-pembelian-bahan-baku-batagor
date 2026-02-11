@@ -23,13 +23,13 @@ class UI:
            LIGHT MODE (DEFAULT)
         =============================== */
         :root {
-            --bg: #f4f6f8;
-            --card: #ffffff;
-            --text: #111827;        /* HITAM */
-            --subtext: #111;
-            --button: #2563eb;
-            --button-hover: #1d4ed8;
-            --shadow: 0 10px 30px rgba(0,0,0,0.12);
+     --bg: #0e1117;
+                --card: #161b22;
+                --text: #e5e7eb;    /* PUTIH */
+                --subtext: #9ca3af;
+                --button: #2563eb;
+                --button-hover: #1d4ed8;
+                --shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
 
         /* ===============================
