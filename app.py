@@ -2,12 +2,12 @@ import streamlit as st
 from auth import AuthManager
 from ui import UI
 
-st.set_page_config(page_title="Login", layout="centered")
+st.set_page_config(page_title="Masuk Sistem", layout="centered")
 
 UI.load_style()
 auth = AuthManager()
 
-# session init
+# inisialisasi session
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
@@ -19,51 +19,51 @@ if st.session_state.logged_in:
     st.switch_page("pages/beranda.py")
 
 # ======================
-# LOGIN PAGE
+# HALAMAN LOGIN
 # ======================
 if st.session_state.page == "login":
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="title">Owner Login</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">Sistem Prediksi Pembelian</div>', unsafe_allow_html=True)
+    st.markdown('<div class="title">Masuk ke Sistem</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Sistem Prediksi Pembelian Bahan Baku</div>', unsafe_allow_html=True)
 
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
+    username = st.text_input("Nama Pengguna")
+    password = st.text_input("Kata Sandi", type="password")
 
-    if st.button("Login"):
+    if st.button("Masuk"):
         if auth.login(username, password):
             st.session_state.logged_in = True
-            st.success("Login berhasil")
+            st.success("Berhasil masuk ke sistem.")
             st.switch_page("pages/beranda.py")
         else:
-            st.error("Username atau password salah")
+            st.error("Nama pengguna atau kata sandi tidak sesuai.")
 
-    if st.button("Lupa Password"):
+    if st.button("Lupa Kata Sandi?"):
         st.session_state.page = "forgot"
         st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ======================
-# RESET PASSWORD (PERMANEN)
+# HALAMAN RESET KATA SANDI
 # ======================
 elif st.session_state.page == "forgot":
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="title">Reset Password</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">Password akan diubah permanen</div>', unsafe_allow_html=True)
+    st.markdown('<div class="title">Atur Ulang Kata Sandi</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Kata sandi baru akan menggantikan yang lama secara permanen</div>', unsafe_allow_html=True)
 
-    username = st.text_input("Username")
-    new_password = st.text_input("Password Baru", type="password")
+    username = st.text_input("Nama Pengguna")
+    new_password = st.text_input("Kata Sandi Baru", type="password")
 
-    if st.button("Reset Password"):
+    if st.button("Atur Ulang Kata Sandi"):
         success = auth.reset_password(username, new_password)
         if success:
-            st.success("Password berhasil direset (PERMANEN)")
+            st.success("Kata sandi berhasil diperbarui secara permanen.")
             st.session_state.page = "login"
             st.rerun()
         else:
-            st.error("User tidak ditemukan")
+            st.error("Nama pengguna tidak ditemukan.")
 
-    if st.button("Kembali ke Login"):
+    if st.button("Kembali ke Halaman Masuk"):
         st.session_state.page = "login"
         st.rerun()
 
