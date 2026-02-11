@@ -7,14 +7,16 @@ st.set_page_config(page_title="Masuk Sistem", layout="centered")
 UI.load_style()
 auth = AuthManager()
 
-# inisialisasi session
+# ======================
+# INISIALISASI SESSION
+# ======================
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-# jika sudah login → ke beranda
+# Jika sudah login → ke beranda
 if st.session_state.logged_in:
     st.switch_page("pages/beranda.py")
 
@@ -22,6 +24,7 @@ if st.session_state.logged_in:
 # HALAMAN LOGIN
 # ======================
 if st.session_state.page == "login":
+
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown('<div class="title">Masuk ke Sistem</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitle">Sistem Prediksi Pembelian Bahan Baku</div>', unsafe_allow_html=True)
@@ -29,7 +32,12 @@ if st.session_state.page == "login":
     username = st.text_input("Nama Pengguna")
     password = st.text_input("Kata Sandi", type="password")
 
-    if st.button("Masuk"):
+    # Tombol Masuk (CENTER)
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        tombol_masuk = st.button("Masuk", use_container_width=True)
+
+    if tombol_masuk:
         if auth.login(username, password):
             st.session_state.logged_in = True
             st.success("Berhasil masuk ke sistem.")
@@ -37,16 +45,22 @@ if st.session_state.page == "login":
         else:
             st.error("Nama pengguna atau kata sandi tidak sesuai.")
 
-    if st.button("Lupa Kata Sandi?"):
+    # Tombol Lupa Password (CENTER)
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        tombol_lupa = st.button("Lupa Kata Sandi?", use_container_width=True)
+
+    if tombol_lupa:
         st.session_state.page = "forgot"
         st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ======================
-# HALAMAN RESET KATA SANDI
+# HALAMAN RESET PASSWORD
 # ======================
 elif st.session_state.page == "forgot":
+
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown('<div class="title">Atur Ulang Kata Sandi</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitle">Kata sandi baru akan menggantikan yang lama secara permanen</div>', unsafe_allow_html=True)
@@ -54,7 +68,12 @@ elif st.session_state.page == "forgot":
     username = st.text_input("Nama Pengguna")
     new_password = st.text_input("Kata Sandi Baru", type="password")
 
-    if st.button("Atur Ulang Kata Sandi"):
+    # Tombol Reset (CENTER)
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        tombol_reset = st.button("Atur Ulang Kata Sandi", use_container_width=True)
+
+    if tombol_reset:
         success = auth.reset_password(username, new_password)
         if success:
             st.success("Kata sandi berhasil diperbarui secara permanen.")
@@ -63,7 +82,12 @@ elif st.session_state.page == "forgot":
         else:
             st.error("Nama pengguna tidak ditemukan.")
 
-    if st.button("Kembali ke Halaman Masuk"):
+    # Tombol Kembali (CENTER)
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        tombol_kembali = st.button("Kembali ke Halaman Masuk", use_container_width=True)
+
+    if tombol_kembali:
         st.session_state.page = "login"
         st.rerun()
 
