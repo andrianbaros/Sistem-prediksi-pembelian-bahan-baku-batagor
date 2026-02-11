@@ -22,8 +22,8 @@ from statsmodels.tsa.statespace.sarimax import SARIMAX
 import numpy as np
 import io
 
-st.title("📦 Sistem Prediksi Pembelian Bahan Baku (Harian)")
-st.caption("Prediksi penjualan harian dengan musiman mingguan (7 hari)")
+st.title("📦 Sistem Prediksi Pembelian Bahan Baku (Bulanan)")
+st.caption("Prediksi penjualan & rekomendasi pembelian bahan baku per bulan")
 
 # ===============================
 # KOLOM
@@ -75,24 +75,36 @@ if uploaded_file:
             st.stop()
 
         # ===============================
-        # TIME SERIES HARIAN
+        # AGREGASI BULANAN
         # ===============================
-        df = df.set_index("Tanggal")
-        ts = df["Penjualan_kg"].asfreq("D")
+        df_monthly = (
+            df.set_index("Tanggal")
+              .resample("MS")
+              .sum()
+              .reset_index()
+        )
 
-        # isi tanggal kosong kalau ada
-        ts = ts.fillna(method="ffill")
-
-        st.subheader("📅 Data Historis Harian")
-        st.dataframe(ts.reset_index())
+        st.subheader("📅 Data Historis Bulanan")
+        st.dataframe(df_monthly)
 
         # ===============================
-        # MODEL SARIMA HARIAN (MUSIMAN 7)
+        # TOTAL ADONAN
+        # ===============================
+        df_monthly["Total_Adonan_kg"] = df_monthly[bahan_tersedia].sum(axis=1)
+
+        # ===============================
+        # TIME SERIES
+        # ===============================
+        ts = df_monthly.set_index("Tanggal")["Penjualan_kg"]
+
+        # ===============================
+        # MODEL (STABIL UNTUK 1 TAHUN DATA)
         # ===============================
         model = SARIMAX(
             ts,
-            order=(1,0,1),
-            seasonal_order=(1,0,1,7),  # MUSIMAN MINGGUAN
+            order=(2,0,1),
+            seasonal_order=(1,0,1,7),
+
             enforce_stationarity=True,
             enforce_invertibility=True
         )
@@ -100,32 +112,32 @@ if uploaded_file:
         model_fit = model.fit(disp=False)
 
         # ===============================
-        # INPUT FORECAST
+        # PARAMETER FORECAST
         # ===============================
-        forecast_days = st.number_input(
-            "Periode Prediksi (hari)",
+        forecast_months = st.number_input(
+            "Periode Prediksi (bulan)",
             min_value=1,
-            max_value=60,
-            value=14
+            max_value=24,
+            value=3
         )
 
         # ===============================
-        # FITTED HISTORIS
+        # PREDIKSI HISTORIS (FITTED)
         # ===============================
         pred = model_fit.get_prediction(start=0, end=len(ts)-1)
         fitted_values = pred.predicted_mean
 
         # ===============================
-        # FORECAST FUTURE
+        # FORECAST MASA DEPAN
         # ===============================
-        forecast_obj = model_fit.get_forecast(steps=forecast_days)
+        forecast_obj = model_fit.get_forecast(steps=forecast_months)
         forecast = forecast_obj.predicted_mean
         conf_int = forecast_obj.conf_int()
 
         future_dates = pd.date_range(
-            start=ts.index[-1] + pd.DateOffset(days=1),
-            periods=forecast_days,
-            freq="D"
+            start=ts.index[-1] + pd.DateOffset(months=1),
+            periods=forecast_months,
+            freq="MS"
         )
 
         forecast_series = pd.Series(forecast.values, index=future_dates)
@@ -133,11 +145,9 @@ if uploaded_file:
         # ===============================
         # KONVERSI KE ADONAN
         # ===============================
-        df["Total_Adonan_kg"] = df[bahan_tersedia].sum(axis=1)
-
         loss_factor = (
-            df["Penjualan_kg"] /
-            df["Total_Adonan_kg"]
+            df_monthly["Penjualan_kg"] /
+            df_monthly["Total_Adonan_kg"]
         ).mean()
 
         df_forecast = pd.DataFrame({
@@ -153,8 +163,8 @@ if uploaded_file:
         # RASIO BAHAN
         # ===============================
         rasio_bahan = (
-            df[bahan_tersedia]
-            .div(df["Total_Adonan_kg"], axis=0)
+            df_monthly[bahan_tersedia]
+            .div(df_monthly["Total_Adonan_kg"], axis=0)
             .mean()
         )
 
@@ -166,7 +176,7 @@ if uploaded_file:
         # ===============================
         # OUTPUT
         # ===============================
-        st.subheader("📦 Rekomendasi Pembelian Bahan Baku (Harian)")
+        st.subheader("📦 Rekomendasi Pembelian Bahan Baku BULANAN")
         st.dataframe(df_forecast[["Tanggal"] + bahan_tersedia])
 
         # ===============================
@@ -185,26 +195,31 @@ if uploaded_file:
         # ===============================
         # VISUALISASI MENYAMBUNG
         # ===============================
-        fig, ax = plt.subplots(figsize=(12,5))
+        fig, ax = plt.subplots(figsize=(10, 4))
 
-        ax.plot(ts.index, ts.values, label="Aktual", color="blue")
+        # Aktual
+        ax.plot(ts.index, ts.values, label="Aktual", marker="o")
+
+        # Fitted historis
         ax.plot(ts.index, fitted_values,
                 linestyle="--", label="Model Historis")
 
+        # Forecast
         ax.plot(future_dates, forecast_series,
                 linestyle="--", marker="o", label="Forecast")
 
+        # Confidence interval
         ax.fill_between(
             future_dates,
-            conf_int.iloc[:,0],
-            conf_int.iloc[:,1],
+            conf_int.iloc[:, 0],
+            conf_int.iloc[:, 1],
+            color='gray',
             alpha=0.3,
-            color="gray",
             label="Confidence Interval"
         )
 
-        ax.set_title("Prediksi Penjualan Harian (Musiman 7 Hari)")
-        ax.set_xlabel("Tanggal")
+        ax.set_title("Prediksi Penjualan Bulanan")
+        ax.set_xlabel("Bulan")
         ax.set_ylabel("Kg")
         ax.legend()
         ax.grid(True)
@@ -221,9 +236,9 @@ if uploaded_file:
         output.seek(0)
 
         st.download_button(
-            label="Export Rekomendasi Harian (Excel)",
+            label="Export Rekomendasi Bulanan (Excel)",
             data=output,
-            file_name="rekomendasi_pembelian_harian.xlsx",
+            file_name="rekomendasi_pembelian_bulanan.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
