@@ -11,37 +11,59 @@ class UI:
            PERBAIKI CONTAINER STREAMLIT
         =============================== */
 
-        /* Hilangkan blok kosong pertama */
         div.block-container > div:first-child:empty {
             display: none;
         }
 
-        /* Kurangi padding atas default */
         .block-container {
             padding-top: 2rem !important;
         }
 
         /* ===============================
-           WARNA DASAR
+           LIGHT MODE (DEFAULT)
         =============================== */
         :root {
-            --bg: #0e1117;
-            --card: #161b22;
-            --text: #e5e7eb;
-            --subtext: #9ca3af;
+            --bg: #f4f6f8;
+            --card: #ffffff;
+            --text: #111827;        /* HITAM */
+            --subtext: #4b5563;
             --button: #2563eb;
             --button-hover: #1d4ed8;
-            --shadow: 0 10px 30px rgba(0,0,0,0.6);
+            --shadow: 0 10px 30px rgba(0,0,0,0.12);
         }
-
-        .main {
-            background-color: var(--bg);
-        }
-
-
 
         /* ===============================
-           JUDUL
+           DARK MODE (AUTO DETECT)
+        =============================== */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0e1117;
+                --card: #161b22;
+                --text: #e5e7eb;    /* PUTIH */
+                --subtext: #9ca3af;
+                --button: #2563eb;
+                --button-hover: #1d4ed8;
+                --shadow: 0 10px 30px rgba(0,0,0,0.6);
+            }
+        }
+
+        /* ===============================
+           BACKGROUND
+        =============================== */
+        .main {
+            background-color: var(--bg);
+            transition: 0.3s ease;
+        }
+
+        /* ===============================
+           TEKS GLOBAL
+        =============================== */
+        body, p, span, label, h1, h2, h3, h4, h5, h6 {
+            color: var(--text) !important;
+        }
+
+        /* ===============================
+           JUDUL LOGIN
         =============================== */
         .title {
             font-size: 24px;
@@ -58,16 +80,15 @@ class UI:
             margin-bottom: 28px;
         }
 
-        label {
-            color: var(--text) !important;
-        }
-
+        /* ===============================
+           INPUT
+        =============================== */
         input {
             border-radius: 8px !important;
         }
 
         /* ===============================
-           TOMBOL CENTER BENAR-BENAR
+           TOMBOL CENTER
         =============================== */
 
         div.stButton {
