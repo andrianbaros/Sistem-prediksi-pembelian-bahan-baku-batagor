@@ -8,6 +8,20 @@ class UI:
         <style>
 
         /* ===============================
+           PERBAIKI CONTAINER STREAMLIT
+        =============================== */
+
+        /* Hilangkan blok kosong pertama */
+        div.block-container > div:first-child:empty {
+            display: none;
+        }
+
+        /* Kurangi padding atas default */
+        .block-container {
+            padding-top: 2rem !important;
+        }
+
+        /* ===============================
            WARNA DASAR
         =============================== */
         :root {
@@ -25,25 +39,15 @@ class UI:
         }
 
         /* ===============================
-           HILANGKAN BLOK STREAMLIT KOSONG ATAS
-        =============================== */
-        .block-container {
-            padding-top: 2rem !important;
-        }
-
-        /* ===============================
-           CARD LOGIN
+           CARD LOGIN (CENTER FIX)
         =============================== */
         .card {
             background: var(--card);
             padding: 42px 38px;
             border-radius: 14px;
             box-shadow: var(--shadow);
-            width: 380px;
-            margin: 3rem auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            width: 400px;
+            margin: 4rem auto;
         }
 
         /* ===============================
@@ -54,7 +58,7 @@ class UI:
             font-weight: 600;
             text-align: center;
             color: var(--text);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .subtitle {
@@ -73,20 +77,20 @@ class UI:
         }
 
         /* ===============================
-           FIX TOMBOL BENAR-BENAR TENGAH
+           TOMBOL CENTER BENAR-BENAR
         =============================== */
 
         div.stButton {
-            width: 100%;
-            display: flex;
-            justify-content: center;
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
         }
 
         div.stButton > button {
-            width: 220px !important;
-            height: 42px !important;
-            border-radius: 8px !important;
-            font-weight: 600;
+            width: 240px !important;
+            height: 44px !important;
+            border-radius: 10px !important;
+            font-weight: 600 !important;
             background-color: var(--button) !important;
             color: white !important;
             border: none !important;
