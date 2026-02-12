@@ -6,4 +6,3 @@ numpy
 matplotlib
 statsmodels
 openpyxl
-math
