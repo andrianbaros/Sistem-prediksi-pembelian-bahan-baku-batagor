@@ -23,7 +23,7 @@ class UI:
            LIGHT MODE (DEFAULT)
         =============================== */
         :root {
-     --bg: #0e1117;
+                --bg: #0e1117;
                 --card: #161b22;
                 --text: #e5e7eb;    /* PUTIH */
                 --subtext: #9ca3af;
