@@ -21,7 +21,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from statsmodels.tsa.statespace.sarimax import SARIMAX
-import numpy as np
 import io
 import math
 import warnings
@@ -44,6 +43,18 @@ BAHAN_COLUMNS = [
     "Kacang_kg",
     "Tahu_kg"
 ]
+
+# ===============================
+# ISI KARUNG REALISTIS
+# ===============================
+ISI_KARUNG = {
+    "Tepung_Tapioka_kg": 25,
+    "Terigu_kg": 25,
+    "Ikan_kg": 10,
+    "Pangsit_kg": 15,
+    "Kacang_kg": 20,
+    "Tahu_kg": 30
+}
 
 def validate_dataframe(df):
     missing = REQUIRED_COLUMNS - set(df.columns)
@@ -133,19 +144,16 @@ if uploaded_file:
             freq="MS"
         )
 
-        forecast_series = pd.Series(forecast.values, index=future_dates)
-
         # ===============================
-        # VISUALISASI GRAFIK
+        # VISUALISASI
         # ===============================
         st.subheader("📊 Grafik Prediksi Bulanan")
 
         fig, ax = plt.subplots(figsize=(12, 5))
 
         ax.plot(ts.index, ts.values, marker="o", label="Data Aktual")
-        ax.plot(ts.index, fitted_values,
-                linestyle="--", label="Model Historis")
-        ax.plot(future_dates, forecast_series,
+        ax.plot(ts.index, fitted_values, linestyle="--", label="Model Historis")
+        ax.plot(future_dates, forecast.values,
                 linestyle="--", marker="o", label="Prediksi")
 
         ax.fill_between(
@@ -195,26 +203,22 @@ if uploaded_file:
             .mean()
         )
 
-        ISI_KARUNG = {
-    "Tepung_Tapioka_kg": 25,
-    "Terigu_kg": 25,
-    "Ikan_kg": 10,
-    "Pangsit_kg": 15,
-    "Kacang_kg": 20,
-    "Tahu_kg": 30
-}
-
-
+        # ===============================
+        # KONVERSI PER BAHAN
+        # ===============================
         for bahan in bahan_tersedia:
+
             df_forecast[bahan] = (
                 df_forecast["Estimasi_Adonan_kg"] * rasio_bahan[bahan]
             ).apply(lambda x: math.ceil(x))
 
-            df_forecast[f"{bahan}_Karung"] = df_forecast[bahan] // isi_per_karung
-            df_forecast[f"{bahan}_Sisa_kg"] = df_forecast[bahan] % isi_per_karung
+            isi = ISI_KARUNG.get(bahan, 25)
+
+            df_forecast[f"{bahan}_Karung"] = df_forecast[bahan] // isi
+            df_forecast[f"{bahan}_Sisa_kg"] = df_forecast[bahan] % isi
 
         # ===============================
-        # TAMPILKAN HASIL PREDIKSI
+        # TAMPILKAN HASIL
         # ===============================
         st.subheader("📦 Rekomendasi Pembelian Bahan Baku Bulanan")
         st.dataframe(df_forecast)
