@@ -195,7 +195,15 @@ if uploaded_file:
             .mean()
         )
 
-        isi_per_karung = 25
+        ISI_KARUNG = {
+    "Tepung_Tapioka_kg": 25,
+    "Terigu_kg": 25,
+    "Ikan_kg": 10,
+    "Pangsit_kg": 15,
+    "Kacang_kg": 20,
+    "Tahu_kg": 30
+}
+
 
         for bahan in bahan_tersedia:
             df_forecast[bahan] = (
