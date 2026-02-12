@@ -22,8 +22,9 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 import numpy as np
 import io
+import math
 
-st.title("Sistem Prediksi Pembelian Bahan Baku Batagor Mang Omeng(Bulanan)")
+st.title("Sistem Prediksi Pembelian Bahan Baku Batagor Mang Omeng (Bulanan)")
 st.caption("Menampilkan prediksi penjualan dan rekomendasi pembelian bahan baku setiap bulan")
 
 # ===============================
@@ -99,7 +100,7 @@ if uploaded_file:
         ts = df_monthly.set_index("Tanggal")["Penjualan_kg"]
 
         # ===============================
-        # MODEL
+        # MODEL SARIMAX
         # ===============================
         model = SARIMAX(
             ts,
@@ -120,12 +121,6 @@ if uploaded_file:
             max_value=24,
             value=3
         )
-
-        # ===============================
-        # PREDIKSI HISTORIS
-        # ===============================
-        pred = model_fit.get_prediction(start=0, end=len(ts)-1)
-        fitted_values = pred.predicted_mean
 
         # ===============================
         # PREDIKSI MASA DEPAN
@@ -152,12 +147,18 @@ if uploaded_file:
 
         df_forecast = pd.DataFrame({
             "Tanggal": future_dates,
-            "Prediksi_Pembelian_kg": forecast.round(2)
+            "Prediksi_Pembelian_kg": forecast.values
         })
+
+        # BULATKAN KE ATAS
+        df_forecast["Prediksi_Pembelian_kg"] = (
+            df_forecast["Prediksi_Pembelian_kg"]
+            .apply(lambda x: math.ceil(x))
+        )
 
         df_forecast["Estimasi_Adonan_kg"] = (
             df_forecast["Prediksi_Pembelian_kg"] / loss_factor
-        ).round(2)
+        ).apply(lambda x: math.ceil(x))
 
         # ===============================
         # RASIO BAHAN
@@ -168,16 +169,30 @@ if uploaded_file:
             .mean()
         )
 
+        isi_per_karung = 25  # 1 karung = 25 kg
+
         for bahan in bahan_tersedia:
+
+            # Hitung kebutuhan bahan & bulatkan
             df_forecast[bahan] = (
                 df_forecast["Estimasi_Adonan_kg"] * rasio_bahan[bahan]
-            ).round(2)
+            ).apply(lambda x: math.ceil(x))
+
+            # Tambahkan kolom Karung
+            df_forecast[f"{bahan}_Karung"] = (
+                df_forecast[bahan] // isi_per_karung
+            )
+
+            # Tambahkan kolom Sisa kg
+            df_forecast[f"{bahan}_Sisa_kg"] = (
+                df_forecast[bahan] % isi_per_karung
+            )
 
         # ===============================
         # TAMPILKAN HASIL
         # ===============================
         st.subheader("📦 Rekomendasi Pembelian Bahan Baku Bulanan")
-        st.dataframe(df_forecast[["Tanggal"] + bahan_tersedia])
+        st.dataframe(df_forecast)
 
         # ===============================
         # RINGKASAN
@@ -185,11 +200,11 @@ if uploaded_file:
         col1, col2 = st.columns(2)
         col1.metric(
             "Total Prediksi Pembelian (kg)",
-            f"{df_forecast['Prediksi_Pembelian_kg'].sum():.2f}"
+            f"{int(df_forecast['Prediksi_Pembelian_kg'].sum())}"
         )
         col2.metric(
             "Total Kebutuhan Adonan (kg)",
-            f"{df_forecast['Estimasi_Adonan_kg'].sum():.2f}"
+            f"{int(df_forecast['Estimasi_Adonan_kg'].sum())}"
         )
 
         # ===============================
@@ -198,8 +213,6 @@ if uploaded_file:
         fig, ax = plt.subplots(figsize=(10, 4))
 
         ax.plot(ts.index, ts.values, label="Data Aktual", marker="o")
-        ax.plot(ts.index, fitted_values,
-                linestyle="--", label="Hasil Model (Historis)")
         ax.plot(future_dates, forecast_series,
                 linestyle="--", marker="o", label="Prediksi")
 
@@ -207,7 +220,6 @@ if uploaded_file:
             future_dates,
             conf_int.iloc[:, 0],
             conf_int.iloc[:, 1],
-            color='gray',
             alpha=0.3,
             label="Interval Kepercayaan"
         )
@@ -221,7 +233,7 @@ if uploaded_file:
         st.pyplot(fig)
 
         # ===============================
-        # EXPORT
+        # EXPORT EXCEL
         # ===============================
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
